@@ -157,7 +157,8 @@ fun AppNavigation() {
             MainScreen(
                 usersViewModel = usersViewModel,
                 depositViewModel = depositViewModel,
-                myCalculationsViewModel = myCalculationsViewModel
+                myCalculationsViewModel = myCalculationsViewModel,
+                authManager = authManager
             )
         }
     }

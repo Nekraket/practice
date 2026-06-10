@@ -2,7 +2,6 @@ package ci.nsu.mobile.domain.models
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 
 @Serializable
 data class QrAuthData(

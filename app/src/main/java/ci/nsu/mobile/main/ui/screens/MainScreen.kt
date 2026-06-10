@@ -29,12 +29,14 @@ import ci.nsu.mobile.main.viewmodel.UsersViewModel
 import androidx.compose.runtime.collectAsState
 import ci.nsu.mobile.auth.di.AuthNavigatorImpl
 import ci.nsu.mobile.calculations.di.CalculationsNavigatorImpl
+import ci.nsu.mobile.domain.interfaces.AuthManager
 
 @Composable
 fun MainScreen(
     usersViewModel: UsersViewModel,
     depositViewModel: DepositViewModel,
-    myCalculationsViewModel: MyCalculationsViewModel
+    myCalculationsViewModel: MyCalculationsViewModel,
+    authManager: AuthManager
 ) {
     val navController = rememberNavController()
     var selectedItem by remember { mutableStateOf(0) }
@@ -45,7 +47,8 @@ fun MainScreen(
     val items = listOf(
         "Пользователи" to android.R.drawable.ic_menu_manage,
         "Мои расчёты" to android.R.drawable.ic_menu_edit,
-        "Новый расчёт" to android.R.drawable.ic_menu_add
+        "Новый расчёт" to android.R.drawable.ic_menu_add,
+        "Профиль" to android.R.drawable.ic_menu_info_details
     )
 
     Scaffold(
@@ -60,6 +63,7 @@ fun MainScreen(
                                 0 -> navController.navigate("users")
                                 1 -> calculationsNavigator.navigateToMyCalculations()
                                 2 -> calculationsNavigator.navigateToNewCalculation()
+                                3 -> navController.navigate("profile")
                             }
                         },
                         icon = { Icon(painterResource(id = icon), contentDescription = title) },
@@ -156,6 +160,13 @@ fun MainScreen(
                         navController.popBackStack()
                     },
                     onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("profile") {
+                ProfileScreen(
+                    authManager = authManager,
+                    onLogout = { authNavigator.navigateToLogin() }
                 )
             }
         }

@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":domain"))
 
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.junit.ktx)
     implementation(libs.google.material)
 
     implementation(platform("androidx.compose:compose-bom:2024.04.01"))

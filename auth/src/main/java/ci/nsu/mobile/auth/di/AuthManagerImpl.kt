@@ -20,7 +20,8 @@ class AuthManagerImpl(
 
     override suspend fun getCurrentUser(): User? {
         val userId = userPreferences.getUserId() ?: return null
-        return User(id = userId.toInt(), login = "", email = "")
+        val login = userPreferences.getUserLogin() ?: ""
+        return User(id = userId.toInt(), login = login, email = "")
     }
 
     override suspend fun getUsers(): List<User> {

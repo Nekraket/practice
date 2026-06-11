@@ -53,6 +53,7 @@ class AuthRepository(
                 userPreferences.saveToken(authResponse.token)
                 // сохраняем userId как заглушку ибо сервер не возвращает id(?)
                 userPreferences.saveUserId(1L)
+                userPreferences.saveUserLogin(login)
                 ApiResult.Success(authResponse)
             } else {
                 ApiResult.Error("Неверный логин или пароль")

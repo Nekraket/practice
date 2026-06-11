@@ -18,6 +18,19 @@ class UserPreferences(private val context: Context) {
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
         private val USER_ID_KEY = longPreferencesKey("user_id")
+        private val USER_LOGIN_KEY = stringPreferencesKey("user_login")
+    }
+
+    suspend fun saveUserLogin(login: String) {
+        context.dataStore.edit { prefs ->
+            prefs[USER_LOGIN_KEY] = login
+        }
+    }
+
+    suspend fun getUserLogin(): String? {
+        return context.dataStore.data.map { prefs ->
+            prefs[USER_LOGIN_KEY]
+        }.firstOrNull()
     }
 
     suspend fun saveToken(token: String) {

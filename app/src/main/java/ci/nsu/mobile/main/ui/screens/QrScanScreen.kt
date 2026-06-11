@@ -48,13 +48,16 @@ fun QrScanScreen(
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     // Таймер
-    LaunchedEffect(isScanningActive, timeLeft) {
-        if (isScanningActive && timeLeft > 0 && cameraInitialized) {
-            delay(1000)
-            if (timeLeft > 0) timeLeft--
-        } else if (timeLeft == 0 && isScanningActive) {
-            isScanningActive = false
-            errorMessage = "Время сканирования истекло"
+    LaunchedEffect(isScanningActive) {
+        if (isScanningActive) {
+            while (timeLeft > 0 && isScanningActive) {
+                delay(1000)
+                timeLeft--
+            }
+            if (timeLeft == 0 && isScanningActive) {
+                isScanningActive = false
+                errorMessage = "Время сканирования истекло"
+            }
         }
     }
 

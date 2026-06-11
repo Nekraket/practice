@@ -63,6 +63,10 @@ fun AppNavigation() {
     val depositRepository = serviceLocator.depositRepository
     val userPreferences = serviceLocator.userPreferences
 
+    // Состояние для данных из QR-сканирования
+    var scannedLogin by remember { mutableStateOf<String?>(null) }
+    var scannedPassword by remember { mutableStateOf<String?>(null) }
+
     val authViewModel: AuthViewModel = viewModel(
         factory = viewModelFactory {
             initializer { AuthViewModel(authRepository) }
@@ -143,6 +147,8 @@ fun AppNavigation() {
                 },
                 onNavigateToRegister = { navController.navigate("register") },
                 onNavigateToQrScan = { navController.navigate("qr_scan") },
+                initialLogin = scannedLogin,
+                initialPassword = scannedPassword,
                 viewModel = authViewModel
             )
         }
@@ -167,7 +173,8 @@ fun AppNavigation() {
         composable("qr_scan") {
             QrScanScreen(
                 onQrScanned = { login, password ->
-                    // TODO: заполнить поля входа
+                    scannedLogin = login
+                    scannedPassword = password
                     navController.popBackStack()
                 },
                 onBack = { navController.popBackStack() }

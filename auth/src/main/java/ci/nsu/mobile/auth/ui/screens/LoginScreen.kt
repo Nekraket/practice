@@ -16,10 +16,21 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToQrScan: () -> Unit,
+    initialLogin: String? = null,
+    initialPassword: String? = null,
     viewModel: AuthViewModel
 ) {
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    LaunchedEffect(initialLogin, initialPassword) {
+        if (!initialLogin.isNullOrEmpty()) {
+            login = initialLogin
+        }
+        if (!initialPassword.isNullOrEmpty()) {
+            password = initialPassword
+        }
+    }
 
     val loginState by viewModel.loginState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

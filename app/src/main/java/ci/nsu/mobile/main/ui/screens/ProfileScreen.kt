@@ -13,6 +13,16 @@ import androidx.compose.ui.unit.sp
 import ci.nsu.mobile.domain.interfaces.AuthManager
 import ci.nsu.mobile.domain.models.QrAuthData
 import ci.nsu.mobile.main.utils.QrGenerator
+import android.Manifest
+import android.content.ContentValues
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +39,19 @@ fun ProfileScreen(
     var showPasswordDialog by remember { mutableStateOf(false) }
     var enteredPassword by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    // Лаунчер для запроса разрешения WRITE_EXTERNAL_STORAGE
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted && qrBitmap != null) {
+            saveQrToGallery(context, qrBitmap!!)
+        } else {
+            android.util.Log.e("ProfileScreen", "Permission denied")
+        }
+    }
 
     // Загружаем логин текущего пользователя
     LaunchedEffect(Unit) {
@@ -147,10 +170,60 @@ fun ProfileScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showQrDialog = false }) {
-                    Text("Закрыть")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    TextButton(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                saveQrToGallery(context, qrBitmap!!)
+                            } else {
+                                if (ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    saveQrToGallery(context, qrBitmap!!)
+                                } else {
+                                    storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Сохранить")
+                    }
+                    TextButton(onClick = { showQrDialog = false }) {
+                        Text("Закрыть")
+                    }
                 }
             }
         )
+    }
+}
+
+private fun saveQrToGallery(context: Context, bitmap: android.graphics.Bitmap) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val resolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "qr_auth_${System.currentTimeMillis()}.png")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/QRApp")
+        }
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        uri?.let {
+            resolver.openOutputStream(it)?.use { outputStream ->
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
+            }
+        }
+    } else {
+        val dir = context.getExternalFilesDir(null)
+        val file = java.io.File(dir, "qr_${System.currentTimeMillis()}.png")
+        java.io.FileOutputStream(file).use { out ->
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+        }
+        val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        intent.data = android.net.Uri.fromFile(file)
+        context.sendBroadcast(intent)
     }
 }

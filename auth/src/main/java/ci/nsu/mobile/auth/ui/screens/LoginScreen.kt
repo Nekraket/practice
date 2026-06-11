@@ -15,6 +15,7 @@ import ci.nsu.mobile.auth.viewmodel.AuthViewModel
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
+    onNavigateToQrScan: () -> Unit,
     viewModel: AuthViewModel
 ) {
     var login by remember { mutableStateOf("") }
@@ -83,6 +84,18 @@ fun LoginScreen(
             } else {
                 Text("Войти")
             }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                onNavigateToQrScan()
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors()
+        ) {
+            Text("Авторизация через QR-код")
         }
 
         Spacer(modifier = Modifier.height(16.dp))

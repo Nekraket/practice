@@ -28,6 +28,7 @@ import ci.nsu.mobile.calculations.viewmodel.DepositViewModel
 import ci.nsu.mobile.calculations.viewmodel.MyCalculationsViewModel
 import ci.nsu.mobile.main.di.ServiceLocator
 import ci.nsu.mobile.main.ui.screens.MainScreen
+import ci.nsu.mobile.main.ui.screens.QrScanScreen
 import ci.nsu.mobile.main.ui.screens.SplashScreen
 import ci.nsu.mobile.main.viewmodel.UsersViewModel
 import ci.nsu.mobile.main.ui.theme.PracticeTheme
@@ -141,6 +142,7 @@ fun AppNavigation() {
                     }
                 },
                 onNavigateToRegister = { navController.navigate("register") },
+                onNavigateToQrScan = { navController.navigate("qr_scan") },
                 viewModel = authViewModel
             )
         }
@@ -159,6 +161,16 @@ fun AppNavigation() {
                 depositViewModel = depositViewModel,
                 myCalculationsViewModel = myCalculationsViewModel,
                 authManager = authManager
+            )
+        }
+
+        composable("qr_scan") {
+            QrScanScreen(
+                onQrScanned = { login, password ->
+                    // TODO: заполнить поля входа
+                    navController.popBackStack()
+                },
+                onBack = { navController.popBackStack() }
             )
         }
     }
